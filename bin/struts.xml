@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+
+	<!-- 
+	<include file="user/struts-user.xml"></include> 
+	<constant name="struts.action.extension" value="html"/> 
+	<constant name="struts.action.extension" value=""/> -->
+
+	<constant name="struts.devMode" value="true" />
+	<constant name="struts.custom.i18n.resources" value="resources/ApplicationResources" />
+	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
+	<constant name="struts.multipart.maxSize" value="20097152" />
+	<constant name="struts.multipart.saveDir" value="D:/temp" />
+	<constant name="struts.action.extension" value="," />
+
+	<package name="default" extends="struts-default" namespace="/">
+
+		<result-types>
+			<result-type name="json" class="org.apache.struts2.json.JSONResult"></result-type>
+			<result-type name="tiles"
+				class="org.apache.struts2.views.tiles.TilesResult" />
+		</result-types>
+
+		<interceptors>
+			<interceptor-stack name="my-defaultStack">
+				<interceptor-ref name="timer" />
+				<interceptor-ref name="logger" />
+
+				<interceptor-ref name="defaultStack">
+					<param name="i18n.attributeName">org.apache.tiles.LOCALE</param>  <!-- make sure tiles also knows the locale -->
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+
+		<default-interceptor-ref name="my-defaultStack" />
+		<default-action-ref name="underConstruction"></default-action-ref>
+
+		<global-results>
+			<result name="error" type="tiles">app.error</result>
+		</global-results>
+		
+		<global-exception-mappings>
+			<exception-mapping exception="java.lang.Throwable"	result="error"></exception-mapping>
+		</global-exception-mappings>
+
+		<action name="index">
+			<result>index.jsp</result>
+		</action>
+
+		<action name="">
+			<result>/WEB-INF/index.jsp</result>
+		</action>
+
+		<!-- <action name="index"> <result type="redirect">login.action</result> 
+			</action> -->
+
+		<action name="underConstruction">
+			<result>pages/error.jsp</result>
+		</action>
+
+		<action name="Test">
+			<result>pages/test.jsp</result>
+		</action>
+
+		<action name="login" class="com.tcs.action.LoginAction">
+
+			<interceptor-ref name="timer" />
+
+			<interceptor-ref name="defaultStack">
+				<param name="excludeMethods">whateverMethod</param>
+			</interceptor-ref>
+
+			<result name="success">pages/welcome.jsp</result>
+			<result name="data">dataLoad.jsp</result>
+		</action>
+
+		<action name="welcome" method="authenticate" class="com.tcs.action.LoginAction">
+			<result name="success" type="tiles">/welcome.tiles</result>
+			<result name="error" type="tiles">/error.tiles</result>
+		</action>
+
+		<action name="display" class="com.tcs.action.LoginAction">
+			<result name="success">pages/welcome.jsp</result>
+			<result name="data">dataLoad.jsp</result>
+		</action>
+
+		<action name="dojo" class="com.tcs.action.DojoAction" method="display">
+			<result name="success">pages/welcome.jsp</result>
+			<result name="none">dojo.jsp</result>
+		</action>
+
+		<action name="locale" class="com.tcs.action.LocaleAction">
+			<result name="SUCCESS">locale.jsp</result>
+		</action>
+
+		<action name="databaseJSON" class="com.tcs.action.DatabaseJSON">
+			<result type="json">
+				<param name="root">databases</param>
+			</result>
+		</action>
+
+		<action name="iterator" class="com.tcs.action.IteratorAction">
+			<result name="success">iterator.jsp</result>
+		</action>
+
+		<action name="customer" class="com.tcs.action.CustomerAction">
+			<result name="success">successCustomer.jsp</result>
+			<result name="input">customer.jsp</result>
+		</action>
+
+		<action name="userImage" class="com.tcs.action.FileUploadAction">
+
+			<interceptor-ref name="fileUpload">
+				<param name="maximumSize">2097152</param>
+				<param name="allowedTypes">
+					image/png,image/gif,image/jpeg,image/pjpeg,application/pdf
+				</param>
+			</interceptor-ref>
+
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+
+			<result name="success">successUpload.jsp</result>
+			<result name="input">upload.jsp</result>
+		</action>
+
+		<action name="download" class="com.tcs.action.DownloadAction">
+
+			<interceptor-ref name="defaultStack" />
+
+			<result name="success" type="stream">
+				<param name="contentType">application/pdf</param>
+				<param name="inputName">fileInputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="bufferSize">1024</param>
+			</result>
+
+			<result name="processing" type="json">
+				<param name="root">llDataList</param>
+			</result>
+
+			<result name="input">pages/upload.jsp</result>
+			<result name="error">pages/error.jsp</result>
+		</action>
+
+		<action name="Login">
+			<result>pages/login.jsp</result>
+		</action>
+
+	</package>
+
+
+	<package name="user" extends="struts-default" namespace="/user">
+
+		<action name="saveOrUpdateUser" method="saveOrUpdate"
+			class="com.tcs.action.UserAction">
+			<result name="success" type="redirect">listUser</result>
+		</action>
+
+		<action name="listUser" method="list" class="com.tcs.action.UserAction">
+			<result name="success">register.jsp</result>
+		</action>
+
+		<action name="editUser" method="edit" class="com.tcs.action.UserAction">
+			<result name="success">register.jsp</result>
+		</action>
+
+		<action name="deleteUser" method="delete" class="com.tcs.action.UserAction">
+			<result name="success" type="redirect">listUser</result>
+		</action>
+
+	</package>
+
+</struts>
